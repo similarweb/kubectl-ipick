@@ -11,12 +11,12 @@ import (
 )
 
 // Run will execute commands
-func Run(command string, args []string) {
+func Run(command string, args []string) error {
 
 	log.WithFields(log.Fields{
 		"command": command,
 		"args":    strings.Join(args, " "),
-	}).Debug("execute command")
+	}).Error("execute command")
 
 	cmd := exec.Command(command, args...)
 	var stdout, stderr bytes.Buffer
@@ -33,5 +33,7 @@ func Run(command string, args []string) {
 			"error":   errStr,
 		}).Warn(fmt.Sprintf("command failed"))
 	}
+
+	return sshConnectError
 
 }
