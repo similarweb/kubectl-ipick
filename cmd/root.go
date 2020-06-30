@@ -53,17 +53,17 @@ Examples:
   # Print a list of all namespaces with an option to select a single namespace to describe
   kubectl {COMMAND_NAME} describe namespaces
 
-  # Print a list of pods filtered by -like <filter> with an option to select a single pod to describe 
-  kubectl {COMMAND_NAME} describe pods -like nginx
+  # Print a list of pods filtered by --like <filter> with an option to select a single pod to describe 
+  kubectl {COMMAND_NAME} describe pods --like nginx
 
   # Print a list of configmaps filtered by -n <namespace> with an option to select a single configmap to edit
   kubectl {COMMAND_NAME} edit configmap -n kube-system
 
-  # Print a list of pods filtered by -like <filter> -f <kubectl exec commnad> 
-  kubectl {COMMAND_NAME} exec -like nginx -f "it bash"
+  # Print a list of pods filtered by --like <filter> -f <kubectl exec commnad> 
+  kubectl {COMMAND_NAME} exec --like nginx -f "it bash"
 
-  # Print a list of pods filtered by -like <filter> -f <kubectl exec commnad> 
-  kubectl {COMMAND_NAME} logs -like nginx -f "-f"
+  # Print a list of pods filtered by --like <filter> -f <kubectl exec commnad> 
+  kubectl {COMMAND_NAME} logs --like nginx -f "-f"
 
   # kubectl-{COMMAND_NAME} supports all available kubectl command/subcommands
 
