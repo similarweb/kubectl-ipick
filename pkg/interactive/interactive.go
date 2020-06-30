@@ -112,7 +112,9 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 	}
 
 	if resourcesCount == 0 {
-		// TODO:: need to add better error handling
+		if i.config.AllNamespaces {
+			return nil, errors.New("no resources found")
+		}
 		return nil, fmt.Errorf("no resources found in %s namespace", namespace)
 	}
 	fmt.Print(buf.String())

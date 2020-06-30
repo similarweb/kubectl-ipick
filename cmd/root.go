@@ -65,6 +65,9 @@ Examples:
   # Print a list of pods filtered by --like <filter> -f <kubectl exec commnad> 
   kubectl {COMMAND_NAME} logs --like nginx -f "-f"
 
+  # Print a list of deployment with an option to select single deployment for delete 
+  kubectl {COMMAND_NAME} delete deployment
+
   # kubectl-{COMMAND_NAME} supports all available kubectl command/subcommands
 
 `, "{COMMAND_NAME}", commandName),
