@@ -1,0 +1,192 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"os/user"
+	"strings"
+
+	"github.com/similarweb/kubectl-interactive/command"
+	"github.com/similarweb/kubectl-interactive/pkg/interactive"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+)
+
+const (
+	// commandName describe the plugin command name
+	commandName = "interactive"
+)
+
+var (
+	// If present, user need to select one of the cluster from the kubeconfig configuration
+	selectCluster bool
+
+	// If present, search the resource in all namespaces
+	allNamespaces bool
+
+	// If presend, select randomly resource
+	random bool
+
+	// If present search the resource from the given namespace
+	namespace string
+
+	// If present, prompt only resources that include the given value
+	like string
+
+	// Append kubectl flags
+	flags string
+
+	// Set application log level
+	lv string
+)
+
+var rootCmd = &cobra.Command{
+	Use:   fmt.Sprintf("kubectl %s [kubectl command] [resource name (optional)]", commandName),
+	Short: fmt.Sprintf("kubectl-%s is interactive plugin for kubectl", commandName),
+	Args:  cobra.MinimumNArgs(1),
+	Long: strings.ReplaceAll(`
+Kubectl-{COMMAND_NAME} is an interactive kubectl command which wraps kubectl commands.
+
+Examples:
+
+  # Print a list of all namespaces with an option to select a single namespace to describe
+  kubectl {COMMAND_NAME} describe namespaces
+
+  # Print a list of pods filtered by -like <filter> with an option to select a single pod to describe 
+  kubectl {COMMAND_NAME} describe pods -like nginx
+
+  # Print a list of configmaps filtered by -n <namespace> with an option to select a single configmap to edit
+  kubectl {COMMAND_NAME} edit configmap -n kube-system
+
+  # Print a list of pods filtered by -like <filter> -f <kubectl exec commnad> 
+  kubectl {COMMAND_NAME} exec -like nginx -f "it bash"
+
+  # Print a list of pods filtered by -like <filter> -f <kubectl exec commnad> 
+  kubectl {COMMAND_NAME} logs -like nginx -f "-f"
+
+  # kubectl-{COMMAND_NAME} supports all available kubectl command/subcommands
+
+`, "{COMMAND_NAME}", commandName),
+	Run: func(cmd *cobra.Command, args []string) {
+
+		log.WithFields(log.Fields{"args": args, "len": len(args)}).Debug("initialize interactive plugin")
+
+		// resourceType describes the available types of Kubernetes resources (pod|configmap and etc)
+		var resourceType string
+
+		// The kubectl actions for example: describe, edit, delete, exec and all kubectl actions
+		action := args[0]
+
+		// creates kubectl comand
+		commandArgs := []string{action}
+
+		// When interactive plugin gets only one argument (Example: exec|pod) we are setting the resource type by default as pod
+		// The reason is that we assume that user interaction with kubectl is with a pod
+		// Examples:
+		// 	kubectl logs [pod name]
+		// 	kubectl exec [pod name]
+
+		if len(args) == 1 {
+			resourceType = "pod"
+		} else {
+			// Set the given resource name (Example: edit configmap)
+			resourceType = args[1]
+			commandArgs = append(commandArgs, resourceType)
+		}
+
+		log.WithField("resource_type", resourceType).Info("given resource type")
+
+		// Get the user home directory (~/) to find the full kubeconfig path
+		usr, err := user.Current()
+		if err != nil {
+			log.WithError(err).Fatal("cold not get user home directory path")
+		}
+
+		kubeConfigPaths := []string{fmt.Sprintf("%s/.kube/config", usr.HomeDir)}
+
+		// Set interactive configuration
+		config := &interactive.Config{
+			SelectCluster:   selectCluster,   // If present, the user needs to select one of the clusters from the kubeconfig
+			AllNamespaces:   allNamespaces,   // If present, search the resource in all namespaces
+			Namespace:       namespace,       // If present search the resource from a given namespace
+			Like:            like,            // If present, filter the resources which contain the given value
+			Random:          random,          // If present, select random resource
+			KubeConfigPaths: kubeConfigPaths, // Kubeconfig file paths
+		}
+
+		r, err := interactive.NewInteractive(config)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		resource, err := r.SelectResource(resourceType)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// add the resource name to kubectl command
+		commandArgs = append(commandArgs, resource.Name)
+
+		// Adding namespace flag
+		commandArgs = append(commandArgs, "-n")
+		commandArgs = append(commandArgs, resource.Namespace)
+
+		// Append extra from to kubectl command.
+		// For example kubectl interactive exec -f "-it sh"
+		commandFlags := strings.Split(flags, " ")
+		for _, flag := range commandFlags {
+			if flag == "" {
+				continue
+			}
+			commandArgs = append(commandArgs, flag)
+		}
+
+		command.Run("kubectl", commandArgs)
+
+	},
+}
+
+// Execute adds all child commands to the root command.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+// init cli flags
+func init() {
+	cobra.OnInitialize(initLogger)
+
+	rootCmd.PersistentFlags().BoolVarP(&selectCluster, "select-cluster", "s", false, "Select cluster from .kube config file")
+	rootCmd.PersistentFlags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If present, list the requested object(s) across all namespaces.")
+	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "If present, the namespace scope for this CLI request")
+	rootCmd.PersistentFlags().StringVarP(&like, "like", "l", "", "If present, the requested resources response will be filter by given value ")
+	rootCmd.PersistentFlags().StringVarP(&flags, "flags", "f", "", "Append kubectl flags")
+	rootCmd.PersistentFlags().BoolVarP(&random, "random", "r", false, "If present, one of the resources will select automatically")
+	rootCmd.PersistentFlags().StringVarP(&lv, "log-level", "v", "error", "log level (trace|debug|info|warn|error|fatal|panic)")
+
+}
+
+// initLogger sets application log level
+func initLogger() {
+	switch lv {
+	case "trace":
+		log.SetLevel(log.TraceLevel)
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	case "fatal":
+		log.SetLevel(log.FatalLevel)
+	case "panic":
+		log.SetLevel(log.PanicLevel)
+	default:
+		log.SetLevel(log.ErrorLevel)
+	}
+}
