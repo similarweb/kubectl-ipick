@@ -167,7 +167,10 @@ Examples:
 			commandArgs = append(commandArgs, flag)
 		}
 
-		command.Run("kubectl", commandArgs)
+		err = command.Run("kubectl", commandArgs)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 	},
 }

@@ -31,8 +31,11 @@ func TestTable(t *testing.T) {
 	buf := &bytes.Buffer{}
 	resourceBuffer, _ := json.Marshal(tableContent)
 
-	Table(tableHeaders, resourceBuffer, buf)
+	err := Table(tableHeaders, resourceBuffer, buf)
 
+	if err != nil {
+		t.Fatalf("unexpected Table error, got %s expected %s", err.Error(), "nil")
+	}
 	if buf.String() != exceptTable {
 		t.Fatalf("unexpected table content, got %s expected %s", buf.String(), exceptTable)
 	}

@@ -26,7 +26,7 @@ func Run(command string, args []string) error {
 
 	if err != nil {
 
-		errStr := string(stderr.Bytes())
+		errStr := stderr.String()
 		log.WithFields(log.Fields{
 			"command": command,
 			"args":    args,

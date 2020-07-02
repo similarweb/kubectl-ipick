@@ -55,7 +55,10 @@ func NewInteractive(config *Config) (*Interactive, error) {
 
 	if config.SelectCluster {
 		clusterBuf := &bytes.Buffer{}
-		contexts.PrintClusters(clusterBuf)
+		err = contexts.PrintClusters(clusterBuf)
+		if err != nil {
+			return nil, err
+		}
 		// Print all the available clusters to STDOUT
 		fmt.Print(clusterBuf.String())
 
@@ -63,7 +66,10 @@ func NewInteractive(config *Config) (*Interactive, error) {
 		selectedCluster := prompt.InteractiveNumber("select context", len(contexts.GetContexts())+1)
 		selectedContext := contexts.GetContexts()[selectedCluster-1]
 		contexts.SetContext(selectedContext)
-		contexts.SwitchLocalContext()
+		err = contexts.SwitchLocalContext()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Set the selected/default context.
