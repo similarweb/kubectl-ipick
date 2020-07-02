@@ -73,8 +73,6 @@ Examples:
   # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and show the chosen pod logs
   kubectl {COMMAND_NAME} logs --like nginx -f "-f"
 
-  # Print a list of deployment with an option to select single deployment for delete 
-
   # Print an interactive list of deployments and delete the chosen one
   kubectl {COMMAND_NAME} delete deployment
 
@@ -152,7 +150,7 @@ Examples:
 		// add the resource name to kubectl command
 		commandArgs = append(commandArgs, resource.Name)
 
-		_, found := Find(ignoreNamespaceSet, resourceType)
+		_, found := find(ignoreNamespaceSet, resourceType)
 		if !found {
 			// Adding namespace flag
 			commandArgs = append(commandArgs, "-n")
@@ -220,7 +218,7 @@ func initLogger() {
 }
 
 // Find string in slice
-func Find(slice []string, val string) (int, bool) {
+func find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
 		if item == val {
 			return i, true
