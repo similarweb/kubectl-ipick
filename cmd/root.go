@@ -16,6 +16,9 @@ import (
 const (
 	// commandName describe the plugin command name
 	commandName = "interactive"
+
+	// defaultKubeConfigPath set the default kubeconfig path
+	defaultKubeConfigPath = ".kube/config"
 )
 
 var (
@@ -39,10 +42,15 @@ var (
 
 	// Set application log level
 	lv string
+
+	kubeConfigPath string
+
+	// ignoreNamespaceSet will not set -n <namespace> while the action is one of the list
+	ignoreNamespaceSet = []string{"node", "nodes"}
 )
 
 var rootCmd = &cobra.Command{
-	Use:   fmt.Sprintf("kubectl %s [kubectl command] [resource name (optional)]", commandName),
+	Use:   fmt.Sprintf("kubectl %s [kubectl command] [resource name]", commandName),
 	Short: fmt.Sprintf("kubectl-%s is interactive plugin for kubectl", commandName),
 	Args:  cobra.MinimumNArgs(1),
 	Long: strings.ReplaceAll(`
@@ -50,25 +58,25 @@ Kubectl-{COMMAND_NAME} is an interactive kubectl command which wraps kubectl com
 
 Examples:
 
-  # Print a list of all namespaces with an option to select a single namespace to describe
+  # Print an interactive list of namespaces and describe the chosen one
   kubectl {COMMAND_NAME} describe namespaces
 
-  # Print a list of pods filtered by --like <filter> with an option to select a single pod to describe 
+  # Print an interactive list of pods filtered by --like <filter> and describe the chosen one
   kubectl {COMMAND_NAME} describe pods --like nginx
 
-  # Print a list of configmaps filtered by -n <namespace> with an option to select a single configmap to edit
+  # Print an interactive list of configmap filtered by -n <namespace> and edit the chosen one
   kubectl {COMMAND_NAME} edit configmap -n kube-system
 
-  # Print a list of pods filtered by --like <filter> -f <kubectl exec commnad> 
+  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and exec the chosen one
   kubectl {COMMAND_NAME} exec --like nginx -f "it bash"
 
-  # Print a list of pods filtered by --like <filter> -f <kubectl exec commnad> 
+  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and show the chosen pod logs
   kubectl {COMMAND_NAME} logs --like nginx -f "-f"
 
   # Print a list of deployment with an option to select single deployment for delete 
-  kubectl {COMMAND_NAME} delete deployment
 
-  # kubectl-{COMMAND_NAME} supports all available kubectl command/subcommands
+  # Print an interactive list of deployments and delete the chosen one
+  kubectl {COMMAND_NAME} delete deployment
 
 `, "{COMMAND_NAME}", commandName),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -84,14 +92,16 @@ Examples:
 		// creates kubectl comand
 		commandArgs := []string{action}
 
-		// When interactive plugin gets only one argument (Example: exec|pod) we are setting the resource type by default as pod
-		// The reason is that we assume that user interaction with kubectl is with a pod
-		// Examples:
-		// 	kubectl logs [pod name]
-		// 	kubectl exec [pod name]
-
+		// When interactive plugin gets only one argument (Example: exec|log) we are mapping the command type to resource type
 		if len(args) == 1 {
-			resourceType = "pod"
+			switch args[0] {
+			case "logs", "exec":
+				resourceType = "pod"
+			case "drain", "cordon", "uncordon":
+				resourceType = "node"
+			default:
+				log.WithField("action", args[0]).Fatal("command not supported")
+			}
 		} else {
 			// Set the given resource name (Example: edit configmap)
 			resourceType = args[1]
@@ -103,10 +113,21 @@ Examples:
 		// Get the user home directory (~/) to find the full kubeconfig path
 		usr, err := user.Current()
 		if err != nil {
-			log.WithError(err).Fatal("cold not get user home directory path")
+			log.WithError(err).Fatal("could not get user home directory path")
 		}
 
-		kubeConfigPaths := []string{fmt.Sprintf("%s/.kube/config", usr.HomeDir)}
+		var workingKubeConfig string
+		if kubeConfigPath == "" {
+			workingKubeConfig = fmt.Sprintf("%s/%s", usr.HomeDir, defaultKubeConfigPath)
+		} else {
+			workingKubeConfig = kubeConfigPath
+		}
+
+		if !fileExists(workingKubeConfig) {
+			log.WithField("kubeconfig_path", workingKubeConfig).Fatal("kubeconfig file not found in path")
+		}
+
+		kubeConfigPaths := []string{workingKubeConfig}
 
 		// Set interactive configuration
 		config := &interactive.Config{
@@ -131,9 +152,12 @@ Examples:
 		// add the resource name to kubectl command
 		commandArgs = append(commandArgs, resource.Name)
 
-		// Adding namespace flag
-		commandArgs = append(commandArgs, "-n")
-		commandArgs = append(commandArgs, resource.Namespace)
+		_, found := Find(ignoreNamespaceSet, resourceType)
+		if !found {
+			// Adding namespace flag
+			commandArgs = append(commandArgs, "-n")
+			commandArgs = append(commandArgs, resource.Namespace)
+		}
 
 		// Append extra from to kubectl command.
 		// For example kubectl interactive exec -f "-it sh"
@@ -163,9 +187,10 @@ func init() {
 	cobra.OnInitialize(initLogger)
 
 	rootCmd.PersistentFlags().BoolVarP(&selectCluster, "select-cluster", "s", false, "Select cluster from .kube config file")
-	rootCmd.PersistentFlags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If present, list the requested object(s) across all namespaces.")
+	rootCmd.PersistentFlags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If present, list the requested object(s) across all namespaces")
 	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "If present, the namespace scope for this CLI request")
-	rootCmd.PersistentFlags().StringVarP(&like, "like", "l", "", "If present, the requested resources response will be filter by given value ")
+	rootCmd.PersistentFlags().StringVarP(&kubeConfigPath, "kubeconfig-path", "", "", fmt.Sprintf("By default the configuration will take from ~/%s unless the flag is present", defaultKubeConfigPath))
+	rootCmd.PersistentFlags().StringVarP(&like, "like", "l", "", "If present, the requested resources response will be filter by given value")
 	rootCmd.PersistentFlags().StringVarP(&flags, "flags", "f", "", "Append kubectl flags")
 	rootCmd.PersistentFlags().BoolVarP(&random, "random", "r", false, "If present, one of the resources will select automatically")
 	rootCmd.PersistentFlags().StringVarP(&lv, "log-level", "v", "error", "log level (trace|debug|info|warn|error|fatal|panic)")
@@ -192,4 +217,23 @@ func initLogger() {
 	default:
 		log.SetLevel(log.ErrorLevel)
 	}
+}
+
+// Find string in slice
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// fileExists check if file exists
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

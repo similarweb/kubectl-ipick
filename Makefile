@@ -2,7 +2,7 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
-GOFMT=$(GOCMD)fmt
+GOFMT=$(GOCMD) fmt
 GOARCH=$(shell go env GOARCH)
 
 BINARY_NAME=kubectl-interactive

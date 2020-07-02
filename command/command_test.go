@@ -11,7 +11,7 @@ func TestCommand(t *testing.T) {
 		err := Run("ls", []string{})
 
 		if err != nil {
-			t.Fatalf("ssh command not success. error: %v", err)
+			t.Fatalf("command failed to execute. error: %v", err)
 		}
 
 	})
@@ -20,7 +20,7 @@ func TestCommand(t *testing.T) {
 		err := Run("error-command", []string{})
 
 		if err == nil {
-			t.Fatalf("ssh command not success. error: %v", err)
+			t.Fatalf("command failed to execute. error: %v", err)
 		}
 
 	})

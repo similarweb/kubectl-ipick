@@ -2,7 +2,6 @@ package command
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -16,24 +15,26 @@ func Run(command string, args []string) error {
 	log.WithFields(log.Fields{
 		"command": command,
 		"args":    strings.Join(args, " "),
-	}).Error("execute command")
+	}).Debug("execute command")
 
 	cmd := exec.Command(command, args...)
-	var stdout, stderr bytes.Buffer
+	var stderr bytes.Buffer
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = &stderr
-	sshConnectError := cmd.Run()
+	err := cmd.Run()
 
-	if sshConnectError != nil {
-		_, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	if err != nil {
+
+		errStr := string(stderr.Bytes())
 		log.WithFields(log.Fields{
 			"command": command,
 			"args":    args,
-			"error":   errStr,
-		}).Warn(fmt.Sprintf("command failed"))
+		}).Info(errStr)
+
+		log.Error(errStr)
 	}
 
-	return sshConnectError
+	return err
 
 }

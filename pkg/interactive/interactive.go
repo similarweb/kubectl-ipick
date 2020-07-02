@@ -63,6 +63,7 @@ func NewInteractive(config *Config) (*Interactive, error) {
 		selectedCluster := prompt.InteractiveNumber("select context", len(contexts.GetContexts())+1)
 		selectedContext := contexts.GetContexts()[selectedCluster-1]
 		contexts.SetContext(selectedContext)
+		contexts.SwitchLocalContext()
 	}
 
 	// Set the selected/default context.
@@ -82,43 +83,49 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		Latest().
 		Flatten()
 
+	// Set namespace to query builder when --all-namespace not set from the root command.
 	if !i.config.AllNamespaces {
-
+		// First take the current user context from .kubeconfig
 		if i.ctx.Data.Namespace != "" {
 			namespace = i.ctx.Data.Namespace
 		}
 
+		// If user set a namespace from root command
 		if i.config.Namespace != "" {
 			namespace = i.config.Namespace
 		}
+
+		// Set namespace to query builder
 		req.NamespaceParam(namespace)
 	}
 
 	resp := req.Do()
 	infos, err := resp.Infos()
-
 	if err != nil {
 		return nil, err
 	}
 
-	buf := &bytes.Buffer{}
+	resourcesBuf := &bytes.Buffer{}
 
+	// Order resources info by name field to keep the same order
 	sort.Slice(infos, func(i, j int) bool {
 		return infos[i].Name < infos[j].Name
 	})
-	resourcesCount, err := PrintResources(infos, i.config.Like, buf)
+
+	resourcesCount, err := PrintResources(infos, i.config.Like, resourcesBuf)
 	if err != nil {
 		return nil, err
 	}
 
+	// If query builder not found resources
 	if resourcesCount == 0 {
 		if i.config.AllNamespaces {
 			return nil, errors.New("no resources found")
 		}
 		return nil, fmt.Errorf("no resources found in %s namespace", namespace)
 	}
-	fmt.Print(buf.String())
 
+	fmt.Print(resourcesBuf.String())
 	var selectedResource int
 	// Select random resource from resources responses
 	if i.config.Random {
@@ -131,7 +138,7 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 	if resourcesCount == 1 {
 		stdInText := prompt.InteractiveText(interactiveTextValidation)
 		if stdInText != "yes" {
-			return nil, errors.New("request canceld")
+			return nil, errors.New("request canceled")
 		}
 	}
 

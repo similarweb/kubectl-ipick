@@ -11,6 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/similarweb/kubectl-interactive/command"
 	"github.com/similarweb/kubectl-interactive/printers"
 )
 
@@ -81,6 +82,11 @@ func (cn *ContextsManager) GetContexts() []Context {
 // SetContext will set new context to work with
 func (cn *ContextsManager) SetContext(context Context) {
 	cn.currentContext = context
+}
+
+// SwitchLocalContext will switch current local context
+func (cn *ContextsManager) SwitchLocalContext() {
+	command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
 }
 
 // PrintClusters will add all the available contexts to the given buffer
