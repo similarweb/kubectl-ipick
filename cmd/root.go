@@ -50,7 +50,7 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   fmt.Sprintf("kubectl %s [kubectl command] [resource name]", commandName),
+	Use:   fmt.Sprintf("%s [kubectl command] [resource name]", commandName),
 	Short: fmt.Sprintf("kubectl-%s is interactive plugin for kubectl", commandName),
 	Args:  cobra.MinimumNArgs(1),
 	Long: strings.ReplaceAll(`
