@@ -14,7 +14,7 @@ func InteractiveNumber(text string, selectCount int) int {
 	}
 
 	var input string
-	fmt.Print(fmt.Sprintf("%s: ", text))
+	fmt.Printf("%s: ", text)
 	var selectedRowNumber int
 
 	for {
@@ -24,7 +24,7 @@ func InteractiveNumber(text string, selectCount int) int {
 			selectedRowNumber = inputNumber
 			break
 		}
-		fmt.Print(fmt.Sprintf("Number must be between %d - %d: ", 1, selectCount))
+		fmt.Printf("Number must be between %d - %d: ", 1, selectCount)
 
 	}
 	return selectedRowNumber
@@ -33,7 +33,7 @@ func InteractiveNumber(text string, selectCount int) int {
 // InteractiveText will prompt a message to the user with free text
 func InteractiveText(text string) string {
 
-	fmt.Print(fmt.Sprintf("%s: ", text))
+	fmt.Printf("%s: ", text)
 	textEnter := ""
 	fmt.Scanln(&textEnter)
 	return textEnter

@@ -100,12 +100,16 @@ func TestPrintClusters(t *testing.T) {
 	}
 
 	buf := &bytes.Buffer{}
-	context.PrintClusters(buf)
+	err = context.PrintClusters(buf)
 
 	exemptedClusters := `ID    CLUSTER
 1     cluster-a
 2     cluster-b
 `
+
+	if err != nil {
+		t.Fatalf("unexpected PrintClusters error, got %s expected %s", err.Error(), "nil")
+	}
 
 	if buf.String() != exemptedClusters {
 		t.Fatalf("unexpected clusters content, got %s expected %s", buf.String(), exemptedClusters)

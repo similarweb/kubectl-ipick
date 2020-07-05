@@ -85,8 +85,8 @@ func (cn *ContextsManager) SetContext(context Context) {
 }
 
 // SwitchLocalContext will switch current local context
-func (cn *ContextsManager) SwitchLocalContext() {
-	command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
+func (cn *ContextsManager) SwitchLocalContext() error {
+	return command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
 }
 
 // PrintClusters will add all the available contexts to the given buffer
@@ -100,6 +100,9 @@ func (cn *ContextsManager) PrintClusters(buf *bytes.Buffer) error {
 	if err != nil {
 		return fmt.Errorf("could not marshal contexts. error: %s", err.Error())
 	}
-	printers.Table(printData, contextsBuffer, buf)
+	err = printers.Table(printData, contextsBuffer, buf)
+	if err != nil {
+		return err
+	}
 	return nil
 }
