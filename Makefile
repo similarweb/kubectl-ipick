@@ -28,9 +28,7 @@ fmt-validator: ## Validate go format
 release:  releasebin ## Build and release all platforms builds to nexus
 
 releasebin: ## Create release with platforms
-	@go get github.com/mitchellh/gox
-	@sh -c "$(CURDIR)/build-support/build.sh ${APPLICATION_NAME}"
-	cd release && ls | xargs -I {} tar zcvf {}.tar.gz {}
+	goreleaser build
 		
 build-linux: ## Build Cross Platform Binary
 		CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) $(GOBUILD) -o $(BINARY_NAME)_linux -v
