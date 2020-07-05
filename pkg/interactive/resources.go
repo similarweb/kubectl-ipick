@@ -43,7 +43,10 @@ func PrintResources(resourceInfo []*resource.Info, like string, buf *bytes.Buffe
 	if err != nil {
 		return 0, fmt.Errorf("could not marshal contexts. error: %s", err.Error())
 	}
-	printers.Table(tableHeader, resourceBuffer, buf)
+	err = printers.Table(tableHeader, resourceBuffer, buf)
+	if err != nil {
+		return 0, err
+	}
 	return resourcesCount, nil
 
 }

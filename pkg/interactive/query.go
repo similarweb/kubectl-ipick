@@ -17,7 +17,6 @@ func NewQueryOptions(context string) *QueryOptions {
 		configFlags: genericclioptions.NewConfigFlags(false),
 	}
 
-	queryOptions.configFlags.ToRESTConfig()
 	queryOptions.configFlags.Context = &context
 	queryOptions.builder = resource.NewBuilder(queryOptions.configFlags)
 	return queryOptions

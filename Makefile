@@ -2,7 +2,7 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
-GOFMT=$(GOCMD) fmt
+GOFMT=$(GOCMD)fmt
 GOARCH=$(shell go env GOARCH)
 
 BINARY_NAME=kubectl-interactive
@@ -11,10 +11,11 @@ TEST_EXEC_CMD=$(GOTEST) -coverprofile=cover.out -short -cover -failfast ./...
 
 test: ## Run tests for the project
 		$(TEST_EXEC_CMD)
-		
-checks-validator: fmt-validator ## Run all kubectl-interactive validations
 
-fmt-validator: ## Validate go format
+lint: ## Code linting
+	golangci-lint run
+
+fmt: ## Validate go format
 	@echo checking gofmt...
 	@res=$$($(GOFMT) -d -e -s $$(find . -type d \( -path ./src/vendor \) -prune -o -name '*.go' -print)); \
 	if [ -n "$${res}" ]; then \
