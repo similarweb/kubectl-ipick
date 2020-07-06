@@ -25,6 +25,8 @@ kubectl-interactive makes our day to day work with kubectl much more faster by l
 * Choose the relevant configmap you wish to edit 
         
 
+![kubectl-interactive](/docs/images/demo.gif)
+
 ```
 ➜ kubectl interactive edit configmap --all-namespaces   
 
@@ -46,12 +48,61 @@ ID    NAME                              NAMESPACE
 select configmap from the list:
 ```
 
+# Installation
+
+
+### Manual
+
+Supported OS
+
+```
+# Linux
+export OS=LINUX
+
+# Mac
+export OS=DARWIN
+
+# Windows
+export OS=WINDOWS
+```
+
+Execute:
+```
+# Get the latest kubectl interactive version
+➜ TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-interactive/releases/latest" |grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+
+```
+
+```
+➜ curl -L https://github.com/similarweb/kubectl-interactive/releases/download/v${TAG}/kubectl-interactive_${TAG}_${OS:-Linux}_x86_64.tar.gz | tar xz && chmod +x kubectl-interactive && mv kubectl-interactive /usr/local/bin
+```
+
 
 # Usage
 ```
-➜ kubectl interactive --help  
+➜ kubectl interactive --help 
 
-Kubectl-interactive is an interactive kubectl plugin which wraps kubectl commands.
+Kubectl-interactive is an interactive kubectl command which wraps kubectl commands.
+
+Examples:
+
+  # Print an interactive list of namespaces and describe the chosen one
+  kubectl interactive describe namespaces
+
+  # Print an interactive list of pods filtered by --like <filter> and describe the chosen one
+  kubectl interactive describe pods --like nginx
+
+  # Print an interactive list of configmap filtered by -n <namespace> and edit the chosen one
+  kubectl interactive edit configmap -n kube-system
+
+  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and exec the chosen one
+  kubectl interactive exec --like nginx -f "it bash"
+
+  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and show the chosen pod logs
+  kubectl interactive logs --like nginx -f "-f"
+
+  # Print an interactive list of deployments and delete the chosen one
+  kubectl interactive delete deployment
 
 Usage:
   interactive command [resource name] [flags]
@@ -68,34 +119,7 @@ Flags:
   -s, --select-cluster           Select cluster from .kube config file
   ```
 
+# Contributing
 
-## Installation
-
-
-### Binary
-
-Supporting OS
-
-```
-# Linux
-OS=LINUX
-
-# Mac
-OS=DARWIN
-```
-
-```
-TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-interactive/releases/latest" |grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-
-curl -LO https://github.com/similarweb/kubectl-interactive/releases/download/v${TAG}/kubectl-interactive_${TAG}_${OS:-Linux}_x86_64.tar.gz
-
-mkdir -p /tmp/kubectl-interactive
-tar -xzvf kubectl-interactive_${TAG}_${OS}_x86_64.tar.gz -C /tmp/kubectl-interactive
-chmod +x /tmp/kubectl-interactive/kubectl-interactive
-
-sudo mv /tmp/kubectl-interactive/kubectl-interactive /usr/local/bin
-
-```
-
-### Krew
-Working progress
+All pull requests and issues are more than welcome! 
+Please see [Contribution guidelines](./CONTRIBUTING.md).
