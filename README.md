@@ -7,7 +7,7 @@ A kubectl plugin that is easy-to-use, flexible, and interactive
 You will have the ability to roam around the Kubernetes world with a blazing fast selection menu
 
 # Introduction
-When you look for a Kubernetes resource to edit (or any kubectl aciton), let's say a configmap.
+When you look for a Kubernetes resource to edit (or any other kubectl aciton), let's say a configmap.
 
 First, you will have to identify the name of the configmap you wish to edit.
 
