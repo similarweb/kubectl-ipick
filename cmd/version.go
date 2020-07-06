@@ -6,11 +6,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	// version of the release, the value injected by .goreleaser
-	version = `{{.Version}}`
-	// commit hash of the release, the value injected by .goreleaser
-	commit = `{{.Commit}}`
+var (
+	// Version of the release, the value injected by .goreleaser
+	Version = `{{.Version}}`
+	// Commit hash of the release, the value injected by .goreleaser
+	Commit = `{{.Commit}}`
 )
 
 var versionCmd = &cobra.Command{
@@ -25,6 +25,6 @@ func init() {
 }
 
 func runVersion(cmd *cobra.Command, _ []string) error {
-	fmt.Printf("Kubectl-interactive %s (%s)", version, commit)
+	fmt.Printf("Kubectl-interactive %s (%s)", Version, Commit)
 	return nil
 }
