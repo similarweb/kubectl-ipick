@@ -1,6 +1,20 @@
 builds:
 - env:
   - CGO_ENABLED=0
+  goos: 
+    - linux
+    - darwin
+    - windows
+  ignore:
+    - goos: darwin
+      goarch: 386
+    - goos: windows
+      goarch: 386
+    - goos: linux
+      goarch: 386
+    - goos: linux
+      goarch: arm
+      goarm: 7
 archives:
   - id: kubectl-interactive
     replacements:
