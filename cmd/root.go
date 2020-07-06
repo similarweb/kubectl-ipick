@@ -54,7 +54,7 @@ var rootCmd = &cobra.Command{
 	Short: fmt.Sprintf("kubectl-%s is interactive plugin for kubectl", commandName),
 	Args:  cobra.MinimumNArgs(1),
 	Long: strings.ReplaceAll(`
-Kubectl-{COMMAND_NAME} is an interactive kubectl command which wraps kubectl commands.
+Kubectl-{COMMAND_NAME} is an interactive kubectl plugin which wraps kubectl commands.
 
 Examples:
 
