@@ -82,7 +82,7 @@ Execute:
 ```
 ➜ kubectl interactive --help 
 
-Kubectl-interactive is an interactive kubectl command which wraps kubectl commands.
+Kubectl-interactive is an interactive kubectl plugin which wraps kubectl commands.
 
 Examples:
 
@@ -106,6 +106,11 @@ Examples:
 
 Usage:
   interactive command [resource name] [flags]
+  interactive [command]
+
+Available Commands:
+  help        Help about any command
+  version     Print the kubectl-interactive version
 
 Flags:
   -A, --all-namespaces           If present, list the requested object(s) across all namespaces
@@ -117,6 +122,8 @@ Flags:
   -n, --namespace string         If present, the namespace scope for this CLI request
   -r, --random                   If present, one of the resources will select automatically
   -s, --select-cluster           Select cluster from .kube config file
+
+Use "interactive [command] --help" for more information about a command.
   ```
 
 # Contributing
