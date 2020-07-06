@@ -22,7 +22,7 @@ func TestPrintResources(t *testing.T) {
 3     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourceCount, err := PrintResources(infos, "", buf)
+		resourcesInfo, err := PrintResources(infos, "", buf)
 
 		if err != nil {
 			t.Fatalf("unexpected PrintResources error, got %s expected %s", err.Error(), "nil")
@@ -32,8 +32,8 @@ func TestPrintResources(t *testing.T) {
 			t.Fatalf("unexpected table content, got %s expected %s", buf.String(), exceptTable)
 		}
 
-		if resourceCount != len(infos) {
-			t.Fatalf("unexpected resource count, got %d expected %d", resourceCount, len(infos))
+		if len(resourcesInfo) != len(infos) {
+			t.Fatalf("unexpected resource count, got %d expected %d", len(resourcesInfo), len(infos))
 		}
 
 	})
@@ -43,7 +43,7 @@ func TestPrintResources(t *testing.T) {
 2     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourceCount, err := PrintResources(infos, "Name-", buf)
+		resourcesInfo, err := PrintResources(infos, "Name-", buf)
 
 		if err != nil {
 			t.Fatalf("unexpected PrintResources error, got %s expected %s", err.Error(), "nil")
@@ -53,8 +53,8 @@ func TestPrintResources(t *testing.T) {
 			t.Fatalf("unexpected table content, got %s expected %s", buf.String(), exceptTable)
 		}
 
-		if resourceCount != 2 {
-			t.Fatalf("unexpected resource count, got %d expected %d", resourceCount, 2)
+		if len(resourcesInfo) != 2 {
+			t.Fatalf("unexpected resource count, got %d expected %d", len(resourcesInfo), 2)
 		}
 
 	})
