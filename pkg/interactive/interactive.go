@@ -118,13 +118,13 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		return infos[i].Name < infos[j].Name
 	})
 
-	resourcesCount, err := PrintResources(infos, i.config.Like, resourcesBuf)
+	filteredResourcesInfo, err := PrintResources(infos, i.config.Like, resourcesBuf)
 	if err != nil {
 		return nil, err
 	}
 
 	// If query builder not found resources
-	if resourcesCount == 0 {
+	if len(filteredResourcesInfo) == 0 {
 		if i.config.AllNamespaces {
 			return nil, errors.New("no resources found")
 		}
@@ -135,20 +135,20 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 	var selectedResource int
 	// Select random resource from resources responses
 	if i.config.Random {
-		selectedResource = i.randomInteger(1, resourcesCount)
+		selectedResource = i.randomInteger(1, len(filteredResourcesInfo))
 	} else {
-		selectedResource = prompt.InteractiveNumber(fmt.Sprintf(interactiveResourceText, resourceType), resourcesCount)
+		selectedResource = prompt.InteractiveNumber(fmt.Sprintf(interactiveResourceText, resourceType), len(filteredResourcesInfo))
 	}
 
 	// Validate resource when single resource was found
-	if resourcesCount == 1 {
+	if len(filteredResourcesInfo) == 1 {
 		stdInText := prompt.InteractiveText(interactiveTextValidation)
 		if stdInText != "yes" {
 			return nil, errors.New("request canceled")
 		}
 	}
 
-	resource := infos[selectedResource-1]
+	resource := filteredResourcesInfo[selectedResource-1]
 	return resource, nil
 
 }

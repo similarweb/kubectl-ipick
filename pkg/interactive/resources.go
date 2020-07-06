@@ -24,15 +24,15 @@ var tableHeader = []printers.PrintTableConfig{
 }
 
 // PrintResources will add all the resource data the given buffer
-func PrintResources(resourceInfo []*resource.Info, like string, buf *bytes.Buffer) (int, error) {
+func PrintResources(resourceInfo []*resource.Info, like string, buf *bytes.Buffer) ([]*resource.Info, error) {
 
+	resourcesResults := []*resource.Info{}
 	data := []tableData{}
-	resourcesCount := 0
 	for _, info := range resourceInfo {
 		if like != "" && !strings.Contains(strings.ToLower(info.Name), strings.ToLower(like)) {
 			continue
 		}
-		resourcesCount++
+		resourcesResults = append(resourcesResults, info)
 		data = append(data, tableData{
 			Name:      info.Name,
 			Namespace: info.Namespace,
@@ -41,12 +41,12 @@ func PrintResources(resourceInfo []*resource.Info, like string, buf *bytes.Buffe
 
 	resourceBuffer, err := json.Marshal(data)
 	if err != nil {
-		return 0, fmt.Errorf("could not marshal contexts. error: %s", err.Error())
+		return nil, fmt.Errorf("could not marshal contexts. error: %s", err.Error())
 	}
 	err = printers.Table(tableHeader, resourceBuffer, buf)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return resourcesCount, nil
+	return resourcesResults, nil
 
 }
