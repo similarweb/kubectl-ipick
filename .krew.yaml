@@ -1,0 +1,57 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: interactive
+spec:
+  version: v{{ .TagName }}
+  homepage: https://github.com/similarweb/kubectl-interactive
+  shortDescription: A kubectl plugin that provides interactive, easy-to-use and flexible interface
+  description: |
+    Description text is here!
+  caveats: |
+    Usage:
+        # Print an interactive list of namespaces and describe the chosen one
+        kubectl interactive describe namespaces
+
+        # Print an interactive list of pods filtered by --like <filter> and describe the chosen one
+        kubectl interactive describe pods --like nginx
+
+        # Print an interactive list of configmap filtered by -n <namespace> and edit the chosen one
+        kubectl interactive edit configmap -n kube-system
+
+        # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and exec the chosen one
+        kubectl interactive exec --like nginx -f "it bash"
+
+        # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and show the chosen pod logs
+        kubectl interactive logs --like nginx -f "-f"
+
+        # Print an interactive list of deployments and delete the chosen one
+        kubectl interactive delete deployment
+  platforms:
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-interactive/releases/download/v{{ .TagName }}/kubectl-interactive_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName | indent 4 }}
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-interactive
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-interactive/releases/download/v{{ .TagName }}/kubectl-interactive_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName | indent 4 }}
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-interactive
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-interactive/releases/download/v{{ .TagName }}/kubectl-interactive_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName | indent 4 }}    
+    files:
+    - from: "*"
+      to: "."
+    bin: kubectl-interactive
