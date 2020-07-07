@@ -5,6 +5,8 @@ builds:
     - linux
     - darwin
     - windows
+  ldflags:
+    - -s -w -X github.com/similarweb/kubectl-interactive/cmd.Version="{{.Version}}" -X github.com/similarweb/kubectl-interactive/cmd.Commit={{.Commit}} -X github.com/similarweb/kubectl-interactive/cmd.date={{.Date}} -X github.com/similarweb/kubectl-interactive/cmd.builtBy=goreleaser
   ignore:
     - goos: darwin
       goarch: 386
