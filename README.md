@@ -69,14 +69,20 @@ export OS=WINDOWS
 Execute:
 ```
 # Get the latest kubectl interactive version
-➜ TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-interactive/releases/latest" |grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-
+TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-interactive/releases/latest" |grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
 ```
 
 ```
-➜ curl -L https://github.com/similarweb/kubectl-interactive/releases/download/v${TAG}/kubectl-interactive_${TAG}_${OS:-Linux}_x86_64.tar.gz | tar xz && chmod +x kubectl-interactive && mv kubectl-interactive /usr/local/bin
+# Download the relevant OS version of the plugin
+curl -L https://github.com/similarweb/kubectl-interactive/releases/download/v${TAG}/kubectl-interactive_${TAG}_${OS:-Linux}_x86_64.tar.gz | tar xz && chmod +x kubectl-interactive && mv kubectl-interactive /usr/local/bin
 ```
 
+```
+# Make your life easier and...
+# Add the following Alias to your .bashrc|.zshrch|.bash_profile
+# Run kubectl interactive plugin on all namespaces
+alias kia='f(){ kubectl interactive "$@" --all-namespaces;  unset -f f; }; f'
+```
 
 # Usage
 ```
