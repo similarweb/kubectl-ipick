@@ -55,7 +55,7 @@ func NewInteractive(config *Config) (*Interactive, error) {
 
 	if config.SelectCluster {
 		clusterBuf := &bytes.Buffer{}
-		err = contexts.PrintClusters(clusterBuf)
+		err = contexts.PopulateClusters(clusterBuf)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +118,7 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		return infos[i].Name < infos[j].Name
 	})
 
-	filteredResourcesInfo, err := PrintResources(infos, i.config.Like, resourcesBuf)
+	filteredResourcesInfo, err := PopulateClusters(infos, i.config.Like, resourcesBuf)
 	if err != nil {
 		return nil, err
 	}

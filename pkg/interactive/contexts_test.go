@@ -93,14 +93,14 @@ func TestSetContext(t *testing.T) {
 
 }
 
-func TestPrintClusters(t *testing.T) {
+func TestPopulateClusters(t *testing.T) {
 	context, err := MockNewContext("kubeconfig")
 	if err != nil {
 		t.Errorf("context instance not created, got: %v", err)
 	}
 
 	buf := &bytes.Buffer{}
-	err = context.PrintClusters(buf)
+	err = context.PopulateClusters(buf)
 
 	exemptedClusters := `ID    CLUSTER
 1     cluster-a
@@ -108,7 +108,7 @@ func TestPrintClusters(t *testing.T) {
 `
 
 	if err != nil {
-		t.Fatalf("unexpected PrintClusters error, got %s expected %s", err.Error(), "nil")
+		t.Fatalf("unexpected PopulateClusters error, got %s expected %s", err.Error(), "nil")
 	}
 
 	if buf.String() != exemptedClusters {

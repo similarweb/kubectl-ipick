@@ -25,3 +25,14 @@ func TestCommand(t *testing.T) {
 
 	})
 }
+func TestdeleteEmptyFields(t *testing.T) {
+
+	slice := []string{"a", "", "b", "c", ""}
+	newSlice := deleteEmptyFields(slice)
+
+	if len(newSlice) != 3 {
+		t.Errorf("incorrect len count, got: %d, want: %d.", len(newSlice), 3)
+
+	}
+
+}

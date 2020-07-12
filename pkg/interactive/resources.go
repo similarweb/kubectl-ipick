@@ -23,8 +23,8 @@ var tableHeader = []printers.PrintTableConfig{
 	{Header: "Namespace", Key: "Namespace"},
 }
 
-// PrintResources will add all the resource data the given buffer
-func PrintResources(resourceInfo []*resource.Info, like string, buf *bytes.Buffer) ([]*resource.Info, error) {
+// PopulateClusters will add all the resource data the given buffer
+func PopulateClusters(resourceInfo []*resource.Info, like string, buf *bytes.Buffer) ([]*resource.Info, error) {
 
 	resourcesResults := []*resource.Info{}
 	data := []tableData{}

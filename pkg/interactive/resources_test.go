@@ -7,7 +7,7 @@ import (
 	"k8s.io/cli-runtime/pkg/resource"
 )
 
-func TestPrintResources(t *testing.T) {
+func TestpopulateClusters(t *testing.T) {
 
 	infos := []*resource.Info{
 		{Namespace: "A", Name: "resource Name"},
@@ -22,10 +22,10 @@ func TestPrintResources(t *testing.T) {
 3     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourcesInfo, err := PrintResources(infos, "", buf)
+		resourcesInfo, err := PopulateClusters(infos, "", buf)
 
 		if err != nil {
-			t.Fatalf("unexpected PrintResources error, got %s expected %s", err.Error(), "nil")
+			t.Fatalf("unexpected populateClusters error, got %s expected %s", err.Error(), "nil")
 		}
 
 		if buf.String() != exceptTable {
@@ -43,10 +43,10 @@ func TestPrintResources(t *testing.T) {
 2     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourcesInfo, err := PrintResources(infos, "Name-", buf)
+		resourcesInfo, err := PopulateClusters(infos, "Name-", buf)
 
 		if err != nil {
-			t.Fatalf("unexpected PrintResources error, got %s expected %s", err.Error(), "nil")
+			t.Fatalf("unexpected PopulateClusters error, got %s expected %s", err.Error(), "nil")
 		}
 
 		if buf.String() != exceptTable {

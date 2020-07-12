@@ -89,8 +89,8 @@ func (cn *ContextsManager) SwitchLocalContext() error {
 	return command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
 }
 
-// PrintClusters will add all the available contexts to the given buffer
-func (cn *ContextsManager) PrintClusters(buf *bytes.Buffer) error {
+// PopulateClusters will add all the available contexts to the given buffer
+func (cn *ContextsManager) PopulateClusters(buf *bytes.Buffer) error {
 
 	printData := []printers.PrintTableConfig{
 		{Header: "Cluster", Key: "Name"},
