@@ -15,7 +15,7 @@ var (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the kubectl-interactive version",
+	Short: "Print the kubectl-ipick version",
 	Args:  cobra.NoArgs,
 	RunE:  runVersion,
 }
@@ -25,6 +25,6 @@ func init() {
 }
 
 func runVersion(cmd *cobra.Command, _ []string) error {
-	fmt.Printf("Kubectl-interactive %s (%s)", Version, Commit)
+	fmt.Printf("Kubectl-ipick %s (%s)", Version, Commit)
 	return nil
 }

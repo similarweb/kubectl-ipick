@@ -1,4 +1,4 @@
-package interactive
+package ipick
 
 import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"

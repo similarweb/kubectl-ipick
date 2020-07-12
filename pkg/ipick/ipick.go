@@ -1,13 +1,16 @@
-package interactive
+package ipick
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
+	"log"
+	"math"
 	"math/rand"
 	"sort"
+	"strings"
+	"time"
 
-	"github.com/similarweb/kubectl-interactive/prompt"
+	"github.com/similarweb/kubectl-ipick/prompt"
 
 	"k8s.io/cli-runtime/pkg/resource"
 )
@@ -17,10 +20,7 @@ const (
 	defaultNamespace = "default"
 
 	// interactiveResourceText show the current text when the user needs to select resource from the given list
-	interactiveResourceText = "select %s from the list"
-
-	// interactiveTextValidation show message validaton to approve the working resource
-	interactiveTextValidation = "Do you want to perform these action? (Only 'yes' will be accepted)"
+	interactiveResourceText = "Displaying %s "
 )
 
 // Config describe the interactive configuration command
@@ -33,38 +33,38 @@ type Config struct {
 	KubeConfigPaths []string
 }
 
-// Interactive describe the interactive instance
-type Interactive struct {
+// Ipick describe the interactive instance
+type Ipick struct {
 	query  *QueryOptions
 	config *Config
 	ctx    Context
 }
 
-// NewInteractive creates new instance of interactive actions
-func NewInteractive(config *Config) (*Interactive, error) {
+// NewIpick creates new instance of interactive actions
+func NewIpick(config *Config) (*Ipick, error) {
 
-	interactive := Interactive{
+	ipick := Ipick{
 		config: config,
 	}
 
 	contexts, err := NewContexts(config.KubeConfigPaths)
 
 	if err != nil {
+		log.Fatal(err)
+	}
+	if err != nil {
 		return nil, err
 	}
 
 	if config.SelectCluster {
-		clusterBuf := &bytes.Buffer{}
-		err = contexts.PopulateClusters(clusterBuf)
+
+		selectedCluster, err := prompt.PickSelectionFromData("select context", contexts.GetContextNames())
 		if err != nil {
 			return nil, err
 		}
-		// Print all the available clusters to STDOUT
-		fmt.Print(clusterBuf.String())
 
 		// Select the cluster that the user wants to work with
-		selectedCluster := prompt.InteractiveNumber("select context", len(contexts.GetContexts())+1)
-		selectedContext := contexts.GetContexts()[selectedCluster-1]
+		selectedContext := contexts.GetContexts()[selectedCluster]
 		contexts.SetContext(selectedContext)
 		err = contexts.SwitchLocalContext()
 		if err != nil {
@@ -73,16 +73,17 @@ func NewInteractive(config *Config) (*Interactive, error) {
 	}
 
 	// Set the selected/default context.
-	interactive.ctx = contexts.GetCurrentContext()
-	interactive.query = NewQueryOptions(interactive.ctx.Name)
+	ipick.ctx = contexts.GetCurrentContext()
+	ipick.query = NewQueryOptions(ipick.ctx.Name)
 
-	return &interactive, nil
+	return &ipick, nil
 }
 
 // SelectResource return selected resource information
-func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error) {
+func (i *Ipick) SelectResource(resourceType string) (*resource.Info, error) {
 
 	namespace := defaultNamespace
+
 	req := i.query.builder.
 		Unstructured().
 		ResourceTypeOrNameArgs(true, resourceType).
@@ -111,16 +112,16 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		return nil, err
 	}
 
-	resourcesBuf := &bytes.Buffer{}
-
 	// Order resources info by name field to keep the same order
 	sort.Slice(infos, func(i, j int) bool {
-		return infos[i].Name < infos[j].Name
+		return infos[i].Name < infos[j].Name && infos[i].Namespace < infos[j].Namespace
 	})
 
-	filteredResourcesInfo, err := PopulateResources(infos, i.config.Like, resourcesBuf)
-	if err != nil {
-		return nil, err
+	var filteredResourcesInfo []*resource.Info
+	if i.config.Like != "" {
+		filteredResourcesInfo = FilterResources(infos, i.config.Like)
+	} else {
+		filteredResourcesInfo = FilterResources(infos, i.config.Like)
 	}
 
 	// If query builder not found resources
@@ -131,29 +132,56 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		return nil, fmt.Errorf("no resources found in %s namespace", namespace)
 	}
 
-	fmt.Print(resourcesBuf.String())
 	var selectedResource int
 	// Select random resource from resources responses
 	if i.config.Random {
 		selectedResource = i.randomInteger(1, len(filteredResourcesInfo))
 	} else {
-		selectedResource = prompt.InteractiveNumber(fmt.Sprintf(interactiveResourceText, resourceType), len(filteredResourcesInfo))
-	}
 
-	// Validate resource when single resource was found
-	if len(filteredResourcesInfo) == 1 {
-		stdInText := prompt.InteractiveText(interactiveTextValidation)
-		if stdInText != "yes" {
-			return nil, errors.New("request canceled")
+		resourcesNames := []string{}
+		namespaceChars := 0
+		for _, resourceInfo := range filteredResourcesInfo {
+			if len(resourceInfo.Name) > namespaceChars {
+				namespaceChars = len(resourceInfo.Name)
+			}
+		}
+
+		for _, resourceInfo := range filteredResourcesInfo {
+			resourcesNames = append(resourcesNames, fmt.Sprintf("%s %s", i.addRightPadding(resourceInfo.Name, namespaceChars+10, " "), resourceInfo.Namespace))
+		}
+		selectedResource, err = prompt.PickSelectionFromData(fmt.Sprintf(interactiveResourceText, resourceType), resourcesNames)
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	resource := filteredResourcesInfo[selectedResource-1]
+	resource := filteredResourcesInfo[selectedResource]
 	return resource, nil
 
 }
 
 // randomInteger returns random number in range
-func (i *Interactive) randomInteger(min int, max int) int {
+func (i *Ipick) randomInteger(min int, max int) int {
+	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max-min) + min
+
+}
+
+// addLeftPadding add right padding string
+func (i *Ipick) addRightPadding(input string, padLength int, padString string) string {
+	var output string
+
+	inputLength := len(input)
+	padStringLength := len(padString)
+
+	if inputLength >= padLength {
+		return input
+	}
+
+	repeat := math.Ceil(float64(1) + (float64(padLength-padStringLength))/float64(padStringLength))
+
+	output = input + strings.Repeat(padString, int(repeat))
+	output = output[:padLength]
+
+	return output
 }

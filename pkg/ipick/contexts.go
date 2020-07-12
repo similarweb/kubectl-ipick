@@ -1,8 +1,6 @@
-package interactive
+package ipick
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -11,8 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/similarweb/kubectl-interactive/command"
-	"github.com/similarweb/kubectl-interactive/printers"
+	"github.com/similarweb/kubectl-ipick/command"
 )
 
 // ContextsManager describe the context instance
@@ -89,20 +86,13 @@ func (cn *ContextsManager) SwitchLocalContext() error {
 	return command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
 }
 
-// PopulateClusters will add all the available contexts to the given buffer
-func (cn *ContextsManager) PopulateClusters(buf *bytes.Buffer) error {
+// GetContextNames returns list of context names
+func (cn *ContextsManager) GetContextNames() []string {
 
-	printData := []printers.PrintTableConfig{
-		{Header: "Cluster", Key: "Name"},
+	contextsName := []string{}
+	for _, context := range cn.contexts {
+		contextsName = append(contextsName, context.Name)
 	}
 
-	contextsBuffer, err := json.Marshal(cn.contexts)
-	if err != nil {
-		return fmt.Errorf("could not marshal contexts. error: %s", err.Error())
-	}
-	err = printers.Table(printData, contextsBuffer, buf)
-	if err != nil {
-		return err
-	}
-	return nil
+	return contextsName
 }

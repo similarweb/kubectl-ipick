@@ -1,40 +1,28 @@
 package prompt
 
 import (
-	"fmt"
-	"strconv"
+	"errors"
+
+	"github.com/AlecAivazis/survey/v2"
 )
 
-// InteractiveNumber will prompt a message to the user with number selection
-func InteractiveNumber(text string, selectCount int) int {
+// PickSelectionFromData return selected data
+func PickSelectionFromData(text string, data []string) (int, error) {
 
-	// Auto select the first element if we have only one element
-	if selectCount == 1 {
-		return 1
+	selected := -1
+	prompt := &survey.Select{
+		Message:       text,
+		Options:       data,
+		PageSize:      50,
+		FilterMessage: "*",
+	}
+	err := survey.AskOne(prompt, &selected)
+	if err != nil {
+		return selected, err
 	}
 
-	var input string
-	fmt.Printf("%s: ", text)
-	var selectedRowNumber int
-
-	for {
-		fmt.Scanln(&input)
-		inputNumber, err := strconv.Atoi(input)
-		if err == nil && inputNumber != 0 && inputNumber <= selectCount {
-			selectedRowNumber = inputNumber
-			break
-		}
-		fmt.Printf("Number must be between %d - %d: ", 1, selectCount)
-
+	if selected == -1 {
+		return selected, errors.New("promp canceled")
 	}
-	return selectedRowNumber
-}
-
-// InteractiveText will prompt a message to the user with free text
-func InteractiveText(text string) string {
-
-	fmt.Printf("%s: ", text)
-	textEnter := ""
-	fmt.Scanln(&textEnter)
-	return textEnter
+	return selected, nil
 }

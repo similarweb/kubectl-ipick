@@ -5,7 +5,7 @@ GOTEST=$(GOCMD) test
 GOFMT=$(GOCMD)fmt
 GOARCH=$(shell go env GOARCH)
 
-BINARY_NAME=kubectl-interactive
+BINARY_NAME=kubectl-ipick
 
 TEST_EXEC_CMD=$(GOTEST) -coverprofile=cover.out -short -cover -failfast ./... 
 
