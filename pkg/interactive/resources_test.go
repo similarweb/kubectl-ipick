@@ -25,7 +25,7 @@ func TestPopulateResources(t *testing.T) {
 		resourcesInfo, err := PopulateResources(infos, "", buf)
 
 		if err != nil {
-			t.Fatalf("unexpected populateClusters error, got %s expected %s", err.Error(), "nil")
+			t.Fatalf("unexpected PopulateResources error, got %s expected %s", err.Error(), "nil")
 		}
 
 		if buf.String() != exceptTable {
@@ -46,7 +46,7 @@ func TestPopulateResources(t *testing.T) {
 		resourcesInfo, err := PopulateResources(infos, "Name-", buf)
 
 		if err != nil {
-			t.Fatalf("unexpected PopulateClusters error, got %s expected %s", err.Error(), "nil")
+			t.Fatalf("unexpected PopulateResources error, got %s expected %s", err.Error(), "nil")
 		}
 
 		if buf.String() != exceptTable {
