@@ -46,7 +46,7 @@ var (
 	kubeConfigPath string
 
 	// ignoreNamespaceSet will not set -n <namespace> while the action is one of the list
-	ignoreNamespaceSet = []string{"node", "nodes"}
+	ignoreNamespaceSet = []string{"node", "nodes", "ns", "namespace", "namespaces"}
 )
 
 var rootCmd = &cobra.Command{
