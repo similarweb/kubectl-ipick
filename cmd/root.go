@@ -43,11 +43,11 @@ var (
 	kubeConfigPath string
 
 	// ignoreNamespaceSet will not set -n <namespace> while the action is one of the list
-	ignoreNamespaceSet = []string{"componentstatuses", "namespaces", "nodes", "persistentvolumes",
-		"mutatingwebhookconfigurations", "validatingwebhookconfigurations", "customresourcedefinitions",
+	ignoreNamespaceSet = []string{"componentstatuses", "cs", "namespaces", "ns", "nodes", "no", "persistentvolumes", "pv",
+		"mutatingwebhookconfigurations", "validatingwebhookconfigurations", "customresourcedefinitions", "crd", "crds",
 		"apiservices", "tokenreviews", "selfsubjectaccessreviews", "selfsubjectrulesreviews",
-		"subjectaccessreviews", "certificatesigningrequests", "runtimeclasses", "podsecuritypolicies",
-		"clusterrolebindings", "clusterroles", "priorityclasses", "csidrivers", "csinodes", "storageclasses",
+		"subjectaccessreviews", "certificatesigningrequests", "csr", "runtimeclasses", "podsecuritypolicies", "psp",
+		"clusterrolebindings", "clusterroles", "priorityclasses", "pc", "csidrivers", "csinodes", "storageclasses", "sc", "volumeattachments",
 	}
 )
 
