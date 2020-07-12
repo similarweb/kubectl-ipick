@@ -6,8 +6,8 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/similarweb/kubectl-interactive/command"
-	"github.com/similarweb/kubectl-interactive/pkg/interactive"
+	"github.com/similarweb/kubectl-ipick/command"
+	"github.com/similarweb/kubectl-ipick/pkg/ipick"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -15,7 +15,7 @@ import (
 
 const (
 	// commandName describe the plugin command name
-	commandName = "interactive"
+	commandName = "ipick"
 
 	// defaultKubeConfigPath set the default kubeconfig path
 	defaultKubeConfigPath = ".kube/config"
@@ -37,16 +37,18 @@ var (
 	// If present, prompt only resources that include the given value
 	like string
 
-	// Append kubectl flags
-	flags string
-
 	// Set application log level
 	lv string
 
 	kubeConfigPath string
 
 	// ignoreNamespaceSet will not set -n <namespace> while the action is one of the list
-	ignoreNamespaceSet = []string{"node", "nodes"}
+	ignoreNamespaceSet = []string{"componentstatuses", "namespaces", "nodes", "persistentvolumes",
+		"mutatingwebhookconfigurations", "validatingwebhookconfigurations", "customresourcedefinitions",
+		"apiservices", "tokenreviews", "selfsubjectaccessreviews", "selfsubjectrulesreviews",
+		"subjectaccessreviews", "certificatesigningrequests", "runtimeclasses", "podsecuritypolicies",
+		"clusterrolebindings", "clusterroles", "priorityclasses", "csidrivers", "csinodes", "storageclasses",
+	}
 )
 
 var rootCmd = &cobra.Command{
@@ -67,11 +69,11 @@ Examples:
   # Print an interactive list of configmap filtered by -n <namespace> and edit the chosen one
   kubectl {COMMAND_NAME} edit configmap -n kube-system
 
-  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and exec the chosen one
-  kubectl {COMMAND_NAME} exec --like nginx -f "it bash"
+  # Print an interactive list of pods filtered by --like <filter> and -- <exec extra flags>  and exec the chosen one
+  kubectl {COMMAND_NAME} exec --like nginx -- -it bash
 
-  # Print an interactive list of pods filtered by --like <filter> and -f <exec extra flags>  and show the chosen pod logs
-  kubectl {COMMAND_NAME} logs --like nginx -f "-f"
+  # Print an interactive list of pods filtered by --like <filter> and -- <exec extra flags>  and show the chosen pod logs
+  kubectl {COMMAND_NAME} logs --like nginx -- -f
 
   # Print an interactive list of deployments and delete the chosen one
   kubectl {COMMAND_NAME} delete deployment
@@ -90,18 +92,15 @@ Examples:
 		// creates kubectl comand
 		commandArgs := []string{action}
 
+		removeFirstArgs := 1
 		// When interactive plugin gets only one argument (Example: exec|log) we are mapping the command type to resource type
-		if len(args) == 1 {
-			switch args[0] {
-			case "logs", "exec":
-				resourceType = "pod"
-			case "drain", "cordon", "uncordon":
-				resourceType = "node"
-			default:
-				log.WithField("action", args[0]).Fatal("command not supported")
-			}
-		} else {
-			// Set the given resource name (Example: edit configmap)
+		switch args[0] {
+		case "logs", "exec":
+			resourceType = "pod"
+		case "drain", "cordon", "uncordon":
+			resourceType = "node"
+		default:
+			removeFirstArgs = 2
 			resourceType = args[1]
 			commandArgs = append(commandArgs, resourceType)
 		}
@@ -128,7 +127,7 @@ Examples:
 		kubeConfigPaths := []string{workingKubeConfig}
 
 		// Set interactive configuration
-		config := &interactive.Config{
+		config := &ipick.Config{
 			SelectCluster:   selectCluster,   // If present, the user needs to select one of the clusters from the kubeconfig
 			AllNamespaces:   allNamespaces,   // If present, search the resource in all namespaces
 			Namespace:       namespace,       // If present search the resource from a given namespace
@@ -137,7 +136,7 @@ Examples:
 			KubeConfigPaths: kubeConfigPaths, // Kubeconfig file paths
 		}
 
-		r, err := interactive.NewInteractive(config)
+		r, err := ipick.NewIpick(config)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -157,13 +156,12 @@ Examples:
 		}
 
 		// Append extra from to kubectl command.
-		// For example kubectl interactive exec -f "-it sh"
-		commandArgs = append(commandArgs, strings.Split(flags, " ")...)
+		// For example kubectl interactive exec -- -it sh
 
-		err = command.Run("kubectl", commandArgs)
-		if err != nil {
-			log.Fatal(err)
-		}
+		passArguments := append(args[:0], args[removeFirstArgs:]...)
+		commandArgs = append(commandArgs, passArguments...)
+
+		_ = command.Run("kubectl", commandArgs)
 
 	},
 }
@@ -185,7 +183,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "If present, the namespace scope for this CLI request")
 	rootCmd.PersistentFlags().StringVarP(&kubeConfigPath, "kubeconfig-path", "", "", fmt.Sprintf("By default the configuration will take from ~/%s unless the flag is present", defaultKubeConfigPath))
 	rootCmd.PersistentFlags().StringVarP(&like, "like", "l", "", "If present, the requested resources response will be filter by given value")
-	rootCmd.PersistentFlags().StringVarP(&flags, "flags", "f", "", "Append kubectl flags")
 	rootCmd.PersistentFlags().BoolVarP(&random, "random", "r", false, "If present, one of the resources will select automatically")
 	rootCmd.PersistentFlags().StringVarP(&lv, "log-level", "v", "error", "log level (trace|debug|info|warn|error|fatal|panic)")
 

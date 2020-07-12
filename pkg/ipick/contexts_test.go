@@ -1,7 +1,6 @@
-package interactive
+package ipick
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"testing"
@@ -89,30 +88,6 @@ func TestSetContext(t *testing.T) {
 
 	if exemptedNewCurrentContext != newCurrentContext.Name {
 		t.Errorf("incorrect current context, got: %s, want: %s.", newCurrentContext.Name, exemptedNewCurrentContext)
-	}
-
-}
-
-func TestPopulateClusters(t *testing.T) {
-	context, err := MockNewContext("kubeconfig")
-	if err != nil {
-		t.Errorf("context instance not created, got: %v", err)
-	}
-
-	buf := &bytes.Buffer{}
-	err = context.PopulateClusters(buf)
-
-	exemptedClusters := `ID    CLUSTER
-1     cluster-a
-2     cluster-b
-`
-
-	if err != nil {
-		t.Fatalf("unexpected PopulateClusters error, got %s expected %s", err.Error(), "nil")
-	}
-
-	if buf.String() != exemptedClusters {
-		t.Fatalf("unexpected clusters content, got %s expected %s", buf.String(), exemptedClusters)
 	}
 
 }

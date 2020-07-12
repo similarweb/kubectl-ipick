@@ -6,7 +6,7 @@ builds:
     - darwin
     - windows
   ldflags:
-    - -s -w -X github.com/similarweb/kubectl-interactive/cmd.Version="{{.Version}}" -X github.com/similarweb/kubectl-interactive/cmd.Commit={{.Commit}} -X github.com/similarweb/kubectl-interactive/cmd.date={{.Date}} -X github.com/similarweb/kubectl-interactive/cmd.builtBy=goreleaser
+    - -s -w -X github.com/similarweb/kubectl-ipick/cmd.Version="{{.Version}}" -X github.com/similarweb/kubectl-ipick/cmd.Commit={{.Commit}} -X github.com/similarweb/kubectl-ipick/cmd.date={{.Date}} -X github.com/similarweb/kubectl-ipick/cmd.builtBy=goreleaser
   ignore:
     - goos: darwin
       goarch: 386
@@ -18,7 +18,7 @@ builds:
       goarch: arm
       goarm: 7
 archives:
-  - id: kubectl-interactive
+  - id: kubectl-ipick
     replacements:
       darwin: Darwin
       linux: Linux

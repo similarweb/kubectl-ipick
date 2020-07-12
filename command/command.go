@@ -33,7 +33,6 @@ func Run(command string, args []string) error {
 			"args":    args,
 		}).Info(errStr)
 
-		log.Error(errStr)
 	}
 
 	return err
