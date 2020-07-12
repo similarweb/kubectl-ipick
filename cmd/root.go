@@ -108,14 +108,14 @@ Examples:
 
 		log.WithField("resource_type", resourceType).Info("given resource type")
 
-		// Get the user home directory (~/) to find the full kubeconfig path
-		usr, err := user.Current()
-		if err != nil {
-			log.WithError(err).Fatal("could not get user home directory path")
-		}
-
 		var workingKubeConfig string
 		if kubeConfigPath == "" {
+			// Get the user home directory (~/) to find the full kubeconfig path
+			usr, err := user.Current()
+			if err != nil {
+				log.WithError(err).Fatal("could not get user home directory path")
+			}
+
 			workingKubeConfig = fmt.Sprintf("%s/%s", usr.HomeDir, defaultKubeConfigPath)
 		} else {
 			workingKubeConfig = kubeConfigPath
@@ -153,19 +153,12 @@ Examples:
 		_, found := find(ignoreNamespaceSet, resourceType)
 		if !found {
 			// Adding namespace flag
-			commandArgs = append(commandArgs, "-n")
-			commandArgs = append(commandArgs, resource.Namespace)
+			commandArgs = append(commandArgs, "-n", resource.Namespace)
 		}
 
 		// Append extra from to kubectl command.
 		// For example kubectl interactive exec -f "-it sh"
-		commandFlags := strings.Split(flags, " ")
-		for _, flag := range commandFlags {
-			if flag == "" {
-				continue
-			}
-			commandArgs = append(commandArgs, flag)
-		}
+		commandArgs = append(commandArgs, strings.Split(flags, " ")...)
 
 		err = command.Run("kubectl", commandArgs)
 		if err != nil {
