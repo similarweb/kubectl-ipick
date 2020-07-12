@@ -33,7 +33,7 @@ type Config struct {
 	KubeConfigPaths []string
 }
 
-// Interactive describe the interactive instance
+// Ipick describe the interactive instance
 type Ipick struct {
 	query  *QueryOptions
 	config *Config
