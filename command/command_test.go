@@ -31,7 +31,7 @@ func TestDeleteEmptyFields(t *testing.T) {
 	newSlice := deleteEmptyFields(slice)
 
 	if len(newSlice) != 3 {
-		t.Errorf("incorrect len count, got: %d, want: %d.", len(newSlice), 3)
+		t.Errorf("incorrect slice count, got: %d, want: %d.", len(newSlice), 3)
 
 	}
 
