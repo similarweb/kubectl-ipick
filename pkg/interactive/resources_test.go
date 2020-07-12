@@ -7,7 +7,7 @@ import (
 	"k8s.io/cli-runtime/pkg/resource"
 )
 
-func TestpopulateClusters(t *testing.T) {
+func TestPopulateResources(t *testing.T) {
 
 	infos := []*resource.Info{
 		{Namespace: "A", Name: "resource Name"},
@@ -22,7 +22,7 @@ func TestpopulateClusters(t *testing.T) {
 3     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourcesInfo, err := PopulateClusters(infos, "", buf)
+		resourcesInfo, err := PopulateResources(infos, "", buf)
 
 		if err != nil {
 			t.Fatalf("unexpected populateClusters error, got %s expected %s", err.Error(), "nil")
@@ -43,7 +43,7 @@ func TestpopulateClusters(t *testing.T) {
 2     resource Name-2   B
 `
 		buf := &bytes.Buffer{}
-		resourcesInfo, err := PopulateClusters(infos, "Name-", buf)
+		resourcesInfo, err := PopulateResources(infos, "Name-", buf)
 
 		if err != nil {
 			t.Fatalf("unexpected PopulateClusters error, got %s expected %s", err.Error(), "nil")

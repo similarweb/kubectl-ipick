@@ -25,7 +25,7 @@ func TestCommand(t *testing.T) {
 
 	})
 }
-func TestdeleteEmptyFields(t *testing.T) {
+func TestDeleteEmptyFields(t *testing.T) {
 
 	slice := []string{"a", "", "b", "c", ""}
 	newSlice := deleteEmptyFields(slice)

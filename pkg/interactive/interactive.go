@@ -118,7 +118,7 @@ func (i *Interactive) SelectResource(resourceType string) (*resource.Info, error
 		return infos[i].Name < infos[j].Name
 	})
 
-	filteredResourcesInfo, err := PopulateClusters(infos, i.config.Like, resourcesBuf)
+	filteredResourcesInfo, err := PopulateResources(infos, i.config.Like, resourcesBuf)
 	if err != nil {
 		return nil, err
 	}
