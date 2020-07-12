@@ -60,7 +60,7 @@ export OS=WINDOWS
 ```
 Execute:
 ```
-# Get the latest kubectl interactive version
+# Get the latest kubectl ipick version
 TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-ipick/releases/latest" |grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
 ```
 ```
@@ -71,11 +71,12 @@ curl -L https://github.com/similarweb/kubectl-ipick/releases/download/v${TAG}/ku
 # Make your life easier and...
 # Add the following Alias to your .bashrc|.zshrch|.bash_profile
 # Run kubectl ipick plugin on all namespaces
-alias gkp='f(){ kubectl ipick "$@" ;  unset -f f; }; f'
+alias kp='f(){ kubectl ipick "$@" ;  unset -f f; }; f'
 ```
 # Usage
 ```
-➜ kubectl interactive --help 
+➜ kubectl ipick --help 
+
 Kubectl-ipick is an interactive kubectl plugin which wraps kubectl commands.
 
 Examples:
@@ -110,10 +111,10 @@ Flags:
   -A, --all-namespaces           If present, list the requested object(s) across all namespaces
   -h, --help                     help for ipick
       --kubeconfig-path string   By default the configuration will take from ~/.kube/config unless the flag is present
-  -l, --like string              If present, the requested resource response will be filtered by a given value
+  -l, --like string              If present, the requested resources response will be filter by given value
   -v, --log-level string         log level (trace|debug|info|warn|error|fatal|panic) (default "error")
   -n, --namespace string         If present, the namespace scope for this CLI request
-  -r, --random                   If present, one of the resource will be select automatically
+  -r, --random                   If present, one of the resources will select automatically
   -s, --select-cluster           Select cluster from .kube config file
 
 Use "ipick [command] --help" for more information about a command.
