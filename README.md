@@ -127,7 +127,8 @@ Flags:
 
 Use "ipick [command] --help" for more information about a command.
 
-  ```
+```
+
 # Contributing
 All pull requests and issues are more than welcome! 
 Please see [Contribution guidelines](./CONTRIBUTING.md).
