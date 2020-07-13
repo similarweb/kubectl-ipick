@@ -48,6 +48,14 @@ Recommendation: make an alias to kubectl ipick to increase the speed of your wor
 kubectl-ipick makes our day to day work with kubectl much more faster by listing the resources you wish to edit within a single command.
 ![kubectl-ipick](/docs/images/usage.gif)
 # Installation
+
+### Via krew
+Installation via krew (https://github.com/GoogleContainerTools/krew)
+
+```
+kubectl krew install ipick
+```
+
 ### Manual
 Supported OS
 ```
@@ -119,7 +127,8 @@ Flags:
 
 Use "ipick [command] --help" for more information about a command.
 
-  ```
+```
+
 # Contributing
 All pull requests and issues are more than welcome! 
 Please see [Contribution guidelines](./CONTRIBUTING.md).
