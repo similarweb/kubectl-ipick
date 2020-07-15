@@ -28,14 +28,12 @@ func Run(command string, args []string) error {
 	err := cmd.Run()
 	elapsed := time.Since(start)
 
-	if err != nil {
-		if elapsed < time.Second {
-			errStr := stderr.String()
-			log.WithFields(log.Fields{
-				"command": command,
-				"args":    args,
-			}).Error(errStr)
-		}
+	if err != nil && elapsed < time.Second {
+		errStr := stderr.String()
+		log.WithFields(log.Fields{
+			"command": command,
+			"args":    args,
+		}).Error(errStr)
 	}
 
 	return err
