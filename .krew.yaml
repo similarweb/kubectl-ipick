@@ -11,21 +11,21 @@ spec:
     the resource to act on. For example, `kubectl ipick exec` will
     show a list of pods and execute `kubectl exec <selected-pod>`.
   platforms:
-  - selector:
-      matchLabels:
-        os: darwin
-        arch: amd64
-    {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName | indent 4 }}
-    bin: kubectl-ipick
-  - selector:
-      matchLabels:
-        os: linux
-        arch: amd64
-    {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName | indent 4 }}
-    bin: kubectl-ipick
-  - selector:
-      matchLabels:
-        os: windows
-        arch: amd64
-    {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName | indent 4 }}    
-    bin: kubectl-ipick.exe
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName | indent 4 }}
+      bin: kubectl-ipick
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName | indent 4 }}
+      bin: kubectl-ipick
+    - selector:
+        matchLabels:
+          os: windows
+          arch: amd64
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName | indent 4 }}    
+      bin: kubectl-ipick.exe
