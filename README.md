@@ -60,11 +60,11 @@ kubectl krew install ipick
 Supported OS
 ```
 # Linux
-export OS=LINUX
+export OS=Linux
 # Mac
-export OS=DARWIN
+export OS=Darwin
 # Windows
-export OS=WINDOWS
+export OS=Windows
 ```
 Execute:
 ```
@@ -73,7 +73,7 @@ TAG=$(curl --silent "https://api.github.com/repos/similarweb/kubectl-ipick/relea
 ```
 ```
 # Download the relevant OS version of the plugin
-curl -L https://github.com/similarweb/kubectl-ipick/releases/download/v${TAG}/kubectl-ipick_${TAG}_${OS:-Linux}_x86_64.tar.gz | tar xz && chmod +x kubectl-ipick && mv kubectl-ipick /usr/local/bin
+curl -L https://github.com/similarweb/kubectl-ipick/releases/download/v${TAG}/kubectl-ipick_v${TAG}_${OS:-Linux}_x86_64.tar.gz | tar xz && chmod +x kubectl-ipick && mv kubectl-ipick /usr/local/bin
 ```
 ```
 # Make your life easier and...
