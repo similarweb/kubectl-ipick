@@ -28,6 +28,8 @@ type Context struct {
 // NewContexts manage the cluster contexts
 func NewContexts(paths []string) (*ContextsManager, error) {
 
+	log.WithField("paths", paths).Debug("init contexts")
+
 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{Precedence: paths},
 		&clientcmd.ConfigOverrides{})

@@ -81,7 +81,12 @@ Examples:
 `, "{COMMAND_NAME}", commandName),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.WithFields(log.Fields{"args": args, "len": len(args)}).Debug("initialize interactive plugin")
+		// Show flags value
+		if log.GetLevel() == log.DebugLevel {
+			cmd.DebugFlags()
+		}
+
+		log.WithFields(log.Fields{"args": args, "len": len(args)}).Info("initialize interactive plugin")
 
 		// resourceType describes the available types of Kubernetes resources (pod|configmap and etc)
 		var resourceType string
@@ -105,7 +110,8 @@ Examples:
 			commandArgs = append(commandArgs, resourceType)
 		}
 
-		log.WithField("resource_type", resourceType).Info("given resource type")
+		log.WithField("resource_type", resourceType).Debug("given resource type")
+		log.WithField("action", action).Debug("given action")
 
 		var workingKubeConfig string
 		if kubeConfigPath == "" {
@@ -116,6 +122,11 @@ Examples:
 			}
 
 			workingKubeConfig = fmt.Sprintf("%s/%s", usr.HomeDir, defaultKubeConfigPath)
+
+			log.WithFields(log.Fields{
+				"path": usr.HomeDir,
+			}).Debug("current user dir")
+
 		} else {
 			workingKubeConfig = kubeConfigPath
 		}
@@ -123,6 +134,10 @@ Examples:
 		if !fileExists(workingKubeConfig) {
 			log.WithField("kubeconfig_path", workingKubeConfig).Fatal("kubeconfig file not found in path")
 		}
+
+		log.WithFields(log.Fields{
+			"kube_config_path": workingKubeConfig,
+		}).Info("kubeconfig path")
 
 		kubeConfigPaths := []string{workingKubeConfig}
 
