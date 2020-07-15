@@ -3,7 +3,7 @@ kind: Plugin
 metadata:
   name: ipick
 spec:
-  version: v{{ .TagName }}
+  version: {{ .TagName }}
   homepage: https://github.com/similarweb/kubectl-ipick
   shortDescription: A kubectl wrapper for interactive resource selection.
   description: |
@@ -15,17 +15,17 @@ spec:
         matchLabels:
           os: darwin
           arch: amd64
-      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName | indent 4 }}
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Darwin_x86_64.tar.gz" .TagName | indent 4 }}
       bin: kubectl-ipick
     - selector:
         matchLabels:
           os: linux
           arch: amd64
-      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName | indent 4 }}
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Linux_x86_64.tar.gz" .TagName | indent 4 }}
       bin: kubectl-ipick
     - selector:
         matchLabels:
           os: windows
           arch: amd64
-      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/v{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName | indent 4 }}    
+      {{addURIAndSha "https://github.com/similarweb/kubectl-ipick/releases/download/{{ .TagName }}/kubectl-ipick_{{ .TagName }}_Windows_x86_64.tar.gz" .TagName | indent 4 }}    
       bin: kubectl-ipick.exe
