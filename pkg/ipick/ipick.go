@@ -3,7 +3,6 @@ package ipick
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"sort"
@@ -13,6 +12,8 @@ import (
 	"github.com/similarweb/kubectl-ipick/prompt"
 
 	"k8s.io/cli-runtime/pkg/resource"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -49,9 +50,6 @@ func NewIpick(config *Config) (*Ipick, error) {
 
 	contexts, err := NewContexts(config.KubeConfigPaths)
 
-	if err != nil {
-		log.Fatal(err)
-	}
 	if err != nil {
 		return nil, err
 	}
@@ -106,11 +104,19 @@ func (i *Ipick) SelectResource(resourceType string) (*resource.Info, error) {
 		req.NamespaceParam(namespace)
 	}
 
+	logger := log.WithFields(log.Fields{
+		"resource_type": resourceType,
+		"namespace":     namespace,
+	})
+
+	logger.Debug("run query builder")
+
 	resp := req.Do()
 	infos, err := resp.Infos()
 	if err != nil {
 		return nil, err
 	}
+	logger.WithField("count_info", len(infos)).Info("query builder results")
 
 	// Order resources info by name field to keep the same order
 	sort.Slice(infos, func(i, j int) bool {
@@ -120,26 +126,35 @@ func (i *Ipick) SelectResource(resourceType string) (*resource.Info, error) {
 	var filteredResourcesInfo []*resource.Info
 	if i.config.Like != "" {
 		filteredResourcesInfo = FilterResources(infos, i.config.Like)
+		logger.WithFields(log.Fields{
+			"like":            i.config.Like,
+			"count_resources": len(filteredResourcesInfo),
+		}).Info("filter resource result")
 	} else {
-		filteredResourcesInfo = FilterResources(infos, i.config.Like)
+		filteredResourcesInfo = infos
 	}
 
 	// If query builder not found resources
 	if len(filteredResourcesInfo) == 0 {
 		if i.config.AllNamespaces {
-			return nil, errors.New("no resources found")
+			return nil, errors.New("No resources found")
 		}
-		return nil, fmt.Errorf("no resources found in %s namespace", namespace)
+		return nil, fmt.Errorf("No resources found in %s namespace", namespace)
 	}
 
 	var selectedResource int
 	// Select random resource from resources responses
 	if i.config.Random {
 		selectedResource = i.randomInteger(1, len(filteredResourcesInfo))
+		logger.WithFields(log.Fields{
+			"min":      1,
+			"max":      len(filteredResourcesInfo),
+			"selected": selectedResource,
+		}).Debug("using random selection")
 	} else {
-
 		resourcesNames := []string{}
 		namespaceChars := 0
+		// calculate the longer resource name for better table view
 		for _, resourceInfo := range filteredResourcesInfo {
 			if len(resourceInfo.Name) > namespaceChars {
 				namespaceChars = len(resourceInfo.Name)

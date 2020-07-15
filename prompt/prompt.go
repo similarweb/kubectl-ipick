@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/AlecAivazis/survey/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 // PickSelectionFromData return selected data
@@ -24,5 +25,7 @@ func PickSelectionFromData(text string, data []string) (int, error) {
 	if selected == -1 {
 		return selected, errors.New("promp canceled")
 	}
+
+	log.WithField("selection", selected).Debug("user selection")
 	return selected, nil
 }
