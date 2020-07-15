@@ -105,6 +105,9 @@ Examples:
 		case "drain", "cordon", "uncordon":
 			resourceType = "node"
 		default:
+			if len(args) < 2 {
+				log.WithField("args", args).Fatal("Invalid kubectl command, missing resource type")
+			}
 			removeFirstArgs = 2
 			resourceType = args[1]
 			commandArgs = append(commandArgs, resourceType)
