@@ -85,7 +85,7 @@ func (cn *ContextsManager) SetContext(context Context) {
 
 // SwitchLocalContext will switch current local context
 func (cn *ContextsManager) SwitchLocalContext() error {
-	return command.Run("kubectl", []string{"config", "set-context", cn.currentContext.Name})
+	return command.Run("kubectl", []string{"config", "use-context", cn.currentContext.Name})
 }
 
 // GetContextNames returns list of context names
